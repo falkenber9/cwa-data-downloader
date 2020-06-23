@@ -3,6 +3,11 @@ CWA Downloader
 
 A downloader for the Corona Warn App configuration and diagnosis keys.
 
+# Dependencies
+```
+bash curl unzip protobuf
+```
+
 # Usage
 ```sh
 ./download-cronfig.sh
