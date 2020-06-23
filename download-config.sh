@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -e	# stop on error
+
+#DATE=`date +%Y-%m-%d`
+DATE=`date +%Y-%m-%d-%H-%M-%S`
+
+STORE_DIR="download"
+SUMMARY_DIR="summary"
+SUMMARY_FILENAME="summary.htm"
+SUMMARY_TEMPLATE_FILENAME="summary.htm"
+TEMPLATE_DIR="template"
+PROTO_DIR="proto"
+PROTO_FILENAME="applicationConfiguration.proto"
+
+CONFIG_DIR="app-config"
+DIAGNOSIS_KEYS_DIR="diagnosis-keys"
+
+CONFIG_ZIP_FILENAME="app-config.zip"
+CONFIG_BINARY_FILENAME="export.bin"
+CONFIG_EXTRACTED_FILENAME="app-config.txt"
+DIAGNOSIS_KEYS_AVAILABLE_DAYS_FILENAME="diagnosis-days.txt"
+
+CONFIG_URL="https://svc90.main.px.t-online.de/version/v1/configuration/country/DE/app_config"
+DIAGNOSIS_KEYS_URL="https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/DE/date"
+
+CURRENT_CONFIG_DIR="$STORE_DIR/$DATE/$CONFIG_DIR"
+CURRENT_DIAGNOSIS_KEYS_DIR="$STORE_DIR/$DATE/$DIAGNOSIS_KEYS_DIR"
+
+mkdir -p "$STORE_DIR"
+mkdir -p "$STORE_DIR/$DATE"
+mkdir -p "$CURRENT_CONFIG_DIR"
+mkdir -p "$CURRENT_DIAGNOSIS_KEYS_DIR"
+
+echo "Downloading List of Dates with Diagnosis Keys to $CURRENT_DIAGNOSIS_KEYS_DIR/$DIAGNOSIS_KEYS_AVAILABLE_DAYS_FILENAME"
+curl "$DIAGNOSIS_KEYS_URL" --output "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAGNOSIS_KEYS_AVAILABLE_DAYS_FILENAME"
+
+echo "Downloading CWA Config to $CURRENT_CONFIG_DIR/$CONFIG_ZIP_FILENAME"
+curl "$CONFIG_URL" --output "$CURRENT_CONFIG_DIR/$CONFIG_ZIP_FILENAME"
+
+echo "Extracting ZIP"
+unzip -o "$CURRENT_CONFIG_DIR/$CONFIG_ZIP_FILENAME" -d "$CURRENT_CONFIG_DIR"
+
+echo "Unpacking Message"
+PROTO_CWA_PACKAGE="de.rki.coronawarnapp.server.protocols"
+PROTO_CWA_CONFIG="ApplicationConfiguration"
+protoc --decode="$PROTO_CWA_PACKAGE.$PROTO_CWA_CONFIG" -I "$PROTO_DIR" "$PROTO_FILENAME" < "$CURRENT_CONFIG_DIR/$CONFIG_BINARY_FILENAME" > "$CURRENT_CONFIG_DIR/$CONFIG_EXTRACTED_FILENAME"
+
+echo "Creating Summary"
+mkdir -p "$SUMMARY_DIR"
+cp "$CURRENT_CONFIG_DIR/$CONFIG_EXTRACTED_FILENAME" "$SUMMARY_DIR"
+CURRNET_SUMMARY_TEMPLATE_FILENAME="$TEMPLATE_DIR/$SUMMARY_TEMPLATE_FILENAME"
+CURRENT_SUMMARY_FILENAME="$SUMMARY_DIR/$SUMMARY_FILENAME"
+export APP_CONFIG="$(cat $CURRENT_CONFIG_DIR/$CONFIG_EXTRACTED_FILENAME)"
+envsubst < "$CURRNET_SUMMARY_TEMPLATE_FILENAME" > "$CURRENT_SUMMARY_FILENAME"
+
+
