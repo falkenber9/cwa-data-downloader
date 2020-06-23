@@ -8,7 +8,7 @@ LONG_DATE=`date`
 
 STORE_DIR="download"
 SUMMARY_DIR="summary"
-SUMMARY_FILENAME="summary.htm"
+SUMMARY_FILENAME="index.htm"
 SUMMARY_TEMPLATE_FILENAME="summary.htm"
 TEMPLATE_DIR="template"
 PROTO_DIR="proto"
