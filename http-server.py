@@ -11,6 +11,7 @@ WEB_ROOT = "summary"
 os.chdir(WEB_ROOT)
 Handler = http.server.SimpleHTTPRequestHandler
 
-with socketserver.TCPServer(("", PORT), Handler) as httpd:
+#with socketserver.TCPServer(("", PORT), Handler) as httpd:
+with socketserver.ThreadingTCPServer(("", PORT), Handler) as httpd:
     print("serving at port", PORT)
     httpd.serve_forever()
