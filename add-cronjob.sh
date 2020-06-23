@@ -3,11 +3,7 @@
 CURRENT_DIR=`pwd`
 DOWNLOADER_FILENAME="download-config.sh"
 
-(crontab -l && echo "0 */8 * * * cd $CURRENT_DIR && ./$DOWNLOADER_FILENAME") | crontab -
-
-DOWNLOADER_FILENAME="bla.sh"
-
-(crontab -l && echo "*/2 * * * * cd $CURRENT_DIR && ./$DOWNLOADER_FILENAME") | crontab -
+(crontab -l && echo "0 */6 * * * cd $CURRENT_DIR && ./$DOWNLOADER_FILENAME") | crontab -
 
 # * * * * * "command to be executed"
 # - - - - -
