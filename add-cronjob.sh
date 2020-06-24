@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CURRENT_DIR=`pwd`
-DOWNLOADER_FILENAME="download-config.sh"
+DOWNLOADER_FILENAME="download-cwa-data.sh"
 
 (crontab -l && echo "0 */6 * * * cd $CURRENT_DIR && ./$DOWNLOADER_FILENAME") | crontab -
 
