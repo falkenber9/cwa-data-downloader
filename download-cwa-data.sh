@@ -22,10 +22,12 @@ CONFIG_ZIP_FILENAME="app-config.zip"
 CONFIG_BINARY_FILENAME="export.bin"
 CONFIG_EXTRACTED_FILENAME="app-config.txt"
 DIAGNOSIS_KEYS_AVAILABLE_DAYS_FILENAME="diagnosis-days.txt"
+DIAGNOSIS_KEYS_AVAILABLE_HOURS_FILENAME="diagnosis-hours.txt"
 DIAGNOSIS_KEYS_ZIP_FILENAME="diagnosis-keys.zip"
 
 CONFIG_URL="https://svc90.main.px.t-online.de/version/v1/configuration/country/DE/app_config"
 DIAGNOSIS_KEYS_URL="https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/DE/date"
+DIAGNOSIS_KEYS_URL_HOUR_SUFFIX="hour"
 
 CURRENT_CONFIG_DIR="$STORE_DIR/$DATE/$CONFIG_DIR"
 CURRENT_DIAGNOSIS_KEYS_DIR="$STORE_DIR/$DATE/$DIAGNOSIS_KEYS_DIR"
@@ -51,7 +53,23 @@ do
   curl "$DIAGNOSIS_KEYS_URL/$DIAG_DATE" --output "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAGNOSIS_KEYS_ZIP_FILENAME"
   unzip -o "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAGNOSIS_KEYS_ZIP_FILENAME" -d "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE"
   # TODO: Unpack 'export.bin' into human-readable form here.
-  # protoc --decode="TemporaryExposureKeyExport" proto/keyExportFormat.proto < download/2020-07-05-09-16-06/diagnosis-keys/2020-07-04/export.bin 
+  # protoc --decode="TemporaryExposureKeyExport" proto/keyExportFormat.proto < download/2020-07-05-09-16-06/diagnosis-keys/2020-07-04/export.bin
+  
+  echo "Downloading list of hours with diagnosis keys to $CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAGNOSIS_KEYS_AVAILABLE_HOURS_FILENAME"
+  curl "$DIAGNOSIS_KEYS_URL/$DIAG_DATE/$DIAGNOSIS_KEYS_URL_HOUR_SUFFIX" --output "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAGNOSIS_KEYS_AVAILABLE_HOURS_FILENAME"
+
+  echo "Parsing hours"
+  DIAG_HOURS=$(cat "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAGNOSIS_KEYS_AVAILABLE_HOURS_FILENAME" | sed 's/[]["]//g' | sed 's/,/\n/g')
+  echo $DIAG_HOURS
+  echo "Downloading hourly diagnosis keys"
+  for DIAG_HOUR in $DIAG_HOURS
+  do
+    mkdir -p "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAG_HOUR"
+    echo "Downloading: $DIAGNOSIS_KEYS_URL/$DIAG_DATE/$DIAGNOSIS_KEYS_URL_HOUR_SUFFIX/$DIAG_HOUR"
+    curl "$DIAGNOSIS_KEYS_URL/$DIAG_DATE/$DIAGNOSIS_KEYS_URL_HOUR_SUFFIX/$DIAG_HOUR" --output "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAG_HOUR/$DIAGNOSIS_KEYS_ZIP_FILENAME"
+    unzip -o "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAG_HOUR/$DIAGNOSIS_KEYS_ZIP_FILENAME" -d "$CURRENT_DIAGNOSIS_KEYS_DIR/$DIAG_DATE/$DIAG_HOUR"
+  done
+  
 done
 
 ##################################
