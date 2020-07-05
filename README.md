@@ -1,7 +1,8 @@
 CWA Data Downloader
 ===================
 
-A downloader for the [German *Corona Warn App* (CWA)](https://github.com/corona-warn-app) diagnosis keys and configuration parameters (e.g. weights for risk calculation).
+A downloader of the current *diagnosis keys* and *configuration parameters* (e.g. weights for risk calculation) of the [German *Corona Warn App* (CWA)](https://github.com/corona-warn-app).
+The data is downloaded directly from the Content Delivery Network (CDN), which is periodically queried by the official mobile app as well.
 
 **Please use this (or any other) downloader moderately in order not to negatively affect the CWA service!**
 
